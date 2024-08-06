@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\CompetitionMineController;
 use App\Http\Controllers\DeleteTeamMemberController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\JoinIndividualCompetitionController;
 use App\Http\Controllers\JoinTeamController;
 use App\Http\Controllers\LoginController;
@@ -37,14 +38,13 @@ Route::get('/debug-sentry', function () {
     throw new Exception('My first Sentry error!');
 });
 
-Route::get('', fn() => 'ok! @iitc');
+Route::get('', fn () => 'ok! @iitc');
 
 Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [LogoutController::class, 'store']);
-
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -78,6 +78,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('competitions/mine', CompetitionMineController::class);
     Route::post('payment/{teamId}', [PaymentController::class, 'store']);
     Route::post('payment/{teamId}/payment-status', [PaymentStatusController::class, 'update']);
+
+    Route::prefix('events')->group(function () {
+        Route::get('/', [EventController::class, 'index']);
+        Route::post('/', [EventController::class, 'store']);
+        Route::put('/{eventId}', [EventController::class, 'update']);
+        Route::delete('/{eventId}', [EventController::class, 'destroy']);
+        Route::put('/{eventId}/set-active', [EventController::class, 'changeIsActive']);
+    });
 
     // Admin
     Route::prefix('admin')->group(function () {
