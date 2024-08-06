@@ -25,3 +25,4 @@ composer.lock
 /public/participant
 *.zip
 /public/receipt
+/public/competition

@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\CategoryCompetition;
 use App\Models\Competition;
 use App\Models\Criterion;
+use App\Models\Event;
 use App\Models\TechStack;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +18,9 @@ class CompetitionController extends Controller
 {
     public function index(): JsonResponse
     {
+        $event = Event::query()->where('is_active', true)->first();
         $competitions = Competition::query()
+            ->where('event_id', $event->id)
             ->with('categories')
             ->get()->map(function (Competition $competition) {
                 $categories = $competition->categories->map(function (Category $category) {
@@ -49,6 +52,9 @@ class CompetitionController extends Controller
     {
         $this->authorize('create', Competition::class);
         $cover = $request->file('cover')->store('competition/avatar', ['disk' => 'public']);
+
+        $event = Event::query()->where('is_active', true)->first();
+
         $competitionData = [
             'name' => $request->input('name'),
             'deadline' => $request->input('deadline'),
@@ -57,6 +63,7 @@ class CompetitionController extends Controller
             'description' => $request->input('description'),
             'guide_book' => $request->input('guideBookLink'),
             'cover' => Storage::disk('public')->url($cover),
+            'event_id' => $event->id,
         ];
 
         $competition = Competition::query()->create($competitionData);
