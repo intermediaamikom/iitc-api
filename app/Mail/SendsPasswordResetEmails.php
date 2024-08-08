@@ -15,15 +15,17 @@ class SendsPasswordResetEmails extends Mailable
     use Queueable, SerializesModels;
 
     private $tokenResetPassword;
+    private $receiverName;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(string $tokenResetPassword)
+    public function __construct(string $tokenResetPassword, string $receiverName)
     {
         $this->tokenResetPassword = $tokenResetPassword;
+        $this->receiverName = $receiverName;
     }
 
     /**
@@ -45,10 +47,12 @@ class SendsPasswordResetEmails extends Mailable
      */
     public function content()
     {
+        $resetLink = "https://iitc.intermediaamikom.org/reset-password?query=" . $this->tokenResetPassword;
         return new Content(
             view: 'mails.send_password_reset_email',
             with: [
-                'token' => $this->tokenResetPassword,
+                'resetLink' => $resetLink,
+                'name' => $this->receiverName
             ],
         );
     }

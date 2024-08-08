@@ -15,7 +15,7 @@ class PasswordResetLinkController extends Controller
     {
         $user = User::where('email', $request->email)->firstOrFail();
         $token = Password::broker()->createToken($user);
-        Mail::to($user)->queue(new SendsPasswordResetEmails($token));
+        Mail::to($user)->queue(new SendsPasswordResetEmails($token, $user->name));
 
         $responseData = [
             "status" => 1,
